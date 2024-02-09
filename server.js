@@ -1,10 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const qrcode = require("qrcode-terminal");
+const jwt = require("jsonwebtoken");
 const { Client } = require("whatsapp-web.js");
 
 const app = express();
 const client = new Client();
+let secretKey = "!@#$!%S3CR3T"; // Ganti dengan secret key Anda
 
 // Gunakan bodyParser agar Express dapat membaca data yang dikirim dalam permintaan POST
 app.use(bodyParser.json());
@@ -32,7 +34,7 @@ async function sendMessageToDestination(number, message) {
 }
 
 // Endpoint API untuk mengirim pesan
-app.post("/api/send-message", async (req, res) => {
+app.post("/api/send-message", verifyToken, async (req, res) => {
   const { number, message } = req.body;
 
   if (!number || !message) {
@@ -46,7 +48,7 @@ app.post("/api/send-message", async (req, res) => {
 });
 
 // Endpoint API untuk mendapatkan QR code
-app.get("/api/qr-code", async (req, res) => {
+app.get("/api/qr-code", verifyToken, async (req, res) => {
   try {
     // if (!qrCodeData) {
     //   throw new Error("QR code belum tersedia. Silakan coba lagi nanti.");
@@ -65,10 +67,42 @@ app.get("/api/qr-code", async (req, res) => {
 client.on("ready", () => {
   console.log("Client is ready!");
   // Menambahkan penanganan saat klien siap
-  app.get("/api/ready", (req, res) => {
+  app.get("/api/ready", verifyToken, (req, res) => {
     res.sendStatus(200);
   });
 });
+
+// Endpoint untuk login dan mendapatkan token JWT
+app.post("/api/login", (req, res) => {
+  // Di sini Anda harus memverifikasi kredensial pengguna dan menghasilkan token JWT
+  const username = req.body.username;
+  const password = req.body.password;
+
+  // Misalnya, hanya sebagai contoh sederhana
+  if (username === "user" && password === "password") {
+    const token = jwt.sign({ username }, secretKey);
+    res.json({ token });
+  } else {
+    res
+      .status(401)
+      .json({ error: "Login gagal. Cek kembali username dan password Anda." });
+  }
+});
+
+// Middleware untuk memverifikasi token JWT
+function verifyToken(req, res, next) {
+  const token = req.headers["authorization"];
+  if (!token) {
+    return res
+      .status(403)
+      .json({ error: "Token tidak tersedia. Silakan login terlebih dahulu." });
+  }
+  jwt.verify(token.split(" ")[1], secretKey, (err, decoded) => {
+    if (err) return res.status(401).json({ error: "Token tidak valid." });
+    req.decoded = decoded;
+    next();
+  });
+}
 // Inisialisasi klien WhatsApp setelah API Express siap
 app.listen(3000, () => {
   console.log("API server berjalan di port 3000.");
