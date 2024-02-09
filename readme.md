@@ -1,6 +1,4 @@
 ```
-npm i whatsapp-web.js
-
-npm i qrcode-terminal
+npm install express body-parser qrcode-terminal whatsapp-web.js
 
 ```
