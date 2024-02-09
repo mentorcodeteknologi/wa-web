@@ -1,7 +1,7 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const qrcode = require('qrcode-terminal');
-const { Client } = require('whatsapp-web.js');
+const express = require("express");
+const bodyParser = require("body-parser");
+const qrcode = require("qrcode-terminal");
+const { Client } = require("whatsapp-web.js");
 
 const app = express();
 const client = new Client();
@@ -9,44 +9,68 @@ const client = new Client();
 // Gunakan bodyParser agar Express dapat membaca data yang dikirim dalam permintaan POST
 app.use(bodyParser.json());
 
-client.on('qr', (qr) => {
-    qrcode.generate(qr, { small: true });
+let qrCodeData = null;
+
+client.on("ready", () => {
+  console.log("Client is ready!");
 });
 
-client.on('ready', () => {
-    console.log('Client is ready!');
-});
-
-client.on('message', async (message) => {
-    if (message.body === '!ping') {
-        await client.sendMessage(message.from, 'pong');
-    }
+client.on("message", async (message) => {
+  if (message.body === "!ping") {
+    await client.sendMessage(message.from, "pong");
+  }
 });
 
 // Fungsi untuk mengirim pesan ke nomor tujuan
 async function sendMessageToDestination(number, message) {
-    try {
-        await client.sendMessage(number + '@c.us', message); // Menambahkan '@c.us' untuk format nomor tujuan
-        console.log('Pesan terkirim!');
-    } catch (error) {
-        console.error('Gagal mengirim pesan:', error);
-    }
+  try {
+    await client.sendMessage(number + "@c.us", message); // Menambahkan '@c.us' untuk format nomor tujuan
+    console.log("Pesan terkirim!");
+  } catch (error) {
+    console.error("Gagal mengirim pesan:", error);
+  }
 }
 
 // Endpoint API untuk mengirim pesan
-app.post('/api/send-message', async (req, res) => {
-    const { number, message } = req.body;
+app.post("/api/send-message", async (req, res) => {
+  const { number, message } = req.body;
 
-    if (!number || !message) {
-        return res.status(400).json({ error: 'Nomor dan pesan harus disertakan dalam permintaan.' });
-    }
+  if (!number || !message) {
+    return res
+      .status(400)
+      .json({ error: "Nomor dan pesan harus disertakan dalam permintaan." });
+  }
 
-    sendMessageToDestination(number, message);
-    res.json({ message: 'Pesan sedang dikirim.' });
+  sendMessageToDestination(number, message);
+  res.json({ message: "Pesan sedang dikirim." });
 });
 
+// Endpoint API untuk mendapatkan QR code
+app.get("/api/qr-code", async (req, res) => {
+  try {
+    // if (!qrCodeData) {
+    //   throw new Error("QR code belum tersedia. Silakan coba lagi nanti.");
+    // }
+    client.on("qr", (qr) => {
+      qrCodeData = qr;
+      //   qrcode.generate(qr, { small: true });
+      res.json({ qrCodeData });
+      console.log("QR terkirim!");
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+client.on("ready", () => {
+  console.log("Client is ready!");
+  // Menambahkan penanganan saat klien siap
+  app.get("/api/ready", (req, res) => {
+    res.sendStatus(200);
+  });
+});
 // Inisialisasi klien WhatsApp setelah API Express siap
 app.listen(3000, () => {
-    console.log('API server berjalan di port 3000.');
-    client.initialize();
+  console.log("API server berjalan di port 3000.");
+  client.initialize();
 });
