@@ -1,9 +1,8 @@
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const { Client } = require("whatsapp-web.js");
-const cors = require('cors');
+const cors = require("cors");
 
 const app = express();
 const client = new Client();
@@ -15,24 +14,32 @@ let qrCodeSent = false;
 app.use(cors());
 app.use(bodyParser.json());
 
+const WebSocket = require("ws");
+
+// Ganti URL dengan URL WebSocket server Anda di CodeIgniter
+const ws = new WebSocket("ws://localhost:8081");
+
+ws.on("open", function open() {
+  console.log("Connected to WebSocket server");
+  ws.send("Hello from Node.js!-test");
+});
 client.on("ready", () => {
   console.log("Client is ready!");
-  whatsappConnected = true;
+  ws.send("Connected-status");
 });
-
 client.on("message", async (message) => {
   if (message.body === "!ping") {
     await client.sendMessage(message.from, "pong");
   }
 });
 
-
-
 app.post("/api/send-message", verifyToken, async (req, res) => {
   const { number, message } = req.body;
 
   if (!number || !message) {
-    return res.status(400).json({ error: "Nomor dan pesan harus disertakan dalam permintaan." });
+    return res
+      .status(400)
+      .json({ error: "Nomor dan pesan harus disertakan dalam permintaan." });
   }
 
   sendMessageToDestination(number, message);
@@ -50,11 +57,14 @@ app.get("/api/qr-code", verifyToken, async (req, res) => {
 
 app.get("/api/ready", (req, res) => {
   console.log("Get Status!");
-    if (whatsappConnected) {
-        res.status(200).json({ status: true });
-    } else {
-        res.status(200).json({ status: false });
-    }
+  if (whatsappConnected) {
+    res.status(200).json({ status: true });
+    ws.send("Connected-status");
+  } else {
+    whatsappConnected = false;
+    res.status(200).json({ status: false });
+    ws.send("Not Connected-status");
+  }
 });
 
 app.post("/api/login", (req, res) => {
@@ -66,14 +76,18 @@ app.post("/api/login", (req, res) => {
     res.json({ token });
     console.log("Login Berhasil!");
   } else {
-    res.status(401).json({ error: "Login gagal. Cek kembali username dan password Anda." });
+    res
+      .status(401)
+      .json({ error: "Login gagal. Cek kembali username dan password Anda." });
   }
 });
 
 function verifyToken(req, res, next) {
   const token = req.headers["authorization"];
   if (!token) {
-    return res.status(403).json({ error: "Token tidak tersedia. Silakan login terlebih dahulu." });
+    return res
+      .status(403)
+      .json({ error: "Token tidak tersedia. Silakan login terlebih dahulu." });
   }
   if (req.path === "/api/ready") {
     return next();
@@ -92,20 +106,19 @@ async function sendMessageToDestination(number, message) {
     console.error("Gagal mengirim pesan:", error);
   }
 }
-
+client.on("qr", (qr) => {
+  // Kirim QR code hanya jika belum dikirim sebelumnya
+  if (whatsappConnected) {
+    ws.send("Connected-status");
+  } else {
+    qrCodeData = qr;
+    ws.send(qrCodeData + "-qr");
+    console.log("Qr Sudah tersedia");
+    whatsappConnected = false;
+    ws.send("Not Connected-status");
+  }
+});
 app.listen(3000, () => {
   console.log("API server berjalan di port 3000.");
-  // Tambahkan variabel untuk melacak apakah QR code sudah dikirim
-  
-
-  if (!qrCodeSent) {
-    client.on("qr", (qr) => {
-    // Kirim QR code hanya jika belum dikirim sebelumnya
-      qrCodeData = qr;
-      console.log("Qr Sudah tersedia");
-      qrCodeSent = true;
-    });
-  }
-
   client.initialize();
 });
