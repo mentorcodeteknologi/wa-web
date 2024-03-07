@@ -7,6 +7,7 @@ const cors = require("cors");
 const app = express();
 const client = new Client({
   puppeteer: {
+    headless : true,
     args: ["--no-sandbox"],
   },
 });
