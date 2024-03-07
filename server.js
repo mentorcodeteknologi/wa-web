@@ -5,14 +5,18 @@ const { Client } = require("whatsapp-web.js");
 const cors = require("cors");
 
 const app = express();
-const client = new Client();
+const client = new Client({
+  puppeteer: {
+    args: ["--no-sandbox"],
+  },
+});
 let secretKey = "!@#$!%S3CR3T"; // Ganti dengan secret key Anda
 let qrCodeData = null;
 let whatsappConnected = false;
 let qrCodeSent = false;
 
 const PORT = 3000;
-const IP_ADDRESS = '103.187.147.14';
+const IP_ADDRESS = "103.187.147.14";
 
 app.use(cors());
 app.use(bodyParser.json());
