@@ -7,8 +7,8 @@ const cors = require("cors");
 const app = express();
 const client = new Client({
   puppeteer: {
-    headless : true,
-    args: ["--no-sandbox", '--disable-setuid-sandbox', '--disable-extensions'],
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-extensions"],
   },
 });
 let secretKey = "!@#$!%S3CR3T"; // Ganti dengan secret key Anda
@@ -95,7 +95,9 @@ function verifyToken(req, res, next) {
   if (!token) {
     return res
       .status(403)
-      .json({ error: "Token tidak tersedia. Silakan login terlebih dahulu." });
+      .json({
+        error: "Token tidak tersedia. Silakan login terlebih dahulu.",
+      });
   }
   if (req.path === "/api/ready") {
     return next();
@@ -127,6 +129,6 @@ client.on("qr", (qr) => {
   }
 });
 app.listen(PORT, IP_ADDRESS, () => {
-  console.log("API server berjalan di port 3000.");
+  console.log(`API server berjalan di ${IP_ADDRESS}:${PORT}.`);
   client.initialize();
 });
