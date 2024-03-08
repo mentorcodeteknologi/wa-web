@@ -129,6 +129,6 @@ client.on("qr", (qr) => {
   }
 });
 app.listen(PORT,/* IP_ADDRESS,*/ () => {
-  console.log(`API server berjalan di ${IP_ADDRESS}:${PORT}.`);
+  console.log(`API server berjalan di PORT : ${PORT}.`);
   client.initialize();
 });
