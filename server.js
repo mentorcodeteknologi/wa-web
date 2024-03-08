@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 const WebSocket = require("ws");
 
 // Ganti URL dengan URL WebSocket server Anda di CodeIgniter
-const ws = new WebSocket("ws://103.67.186.157/:8081");
+const ws = new WebSocket("ws://103.67.186.157:8081");
 
 ws.on("open", function open() {
   console.log("Connected to WebSocket server");
