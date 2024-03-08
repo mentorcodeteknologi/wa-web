@@ -17,7 +17,7 @@ let whatsappConnected = false;
 let qrCodeSent = false;
 
 const PORT = 3000;
-const IP_ADDRESS = "103.67.186.41";
+// const IP_ADDRESS = "103.67.186.41";
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -128,7 +128,7 @@ client.on("qr", (qr) => {
     ws.send("Not Connected-status");
   }
 });
-app.listen(PORT, IP_ADDRESS, () => {
+app.listen(PORT,/* IP_ADDRESS,*/ () => {
   console.log(`API server berjalan di ${IP_ADDRESS}:${PORT}.`);
   client.initialize();
 });
