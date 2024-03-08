@@ -17,7 +17,7 @@ let whatsappConnected = false;
 let qrCodeSent = false;
 
 const PORT = 3000;
-const IP_ADDRESS = "103.187.147.14";
+const IP_ADDRESS = "103.67.186.41";
 
 app.use(cors());
 app.use(bodyParser.json());
