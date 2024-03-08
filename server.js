@@ -8,7 +8,7 @@ const app = express();
 const client = new Client({
   puppeteer: {
     headless : true,
-    args: ["--no-sandbox"],
+    args: ["--no-sandbox", '--disable-setuid-sandbox', '--disable-extensions'],
   },
 });
 let secretKey = "!@#$!%S3CR3T"; // Ganti dengan secret key Anda
