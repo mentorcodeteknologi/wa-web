@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const cors = require("cors");
+const Pusher = require("pusher");
 
 const app = express();
 const wwebVersion = "2.2412.54";
@@ -20,27 +21,30 @@ const client = new Client({
 let secretKey = "!@#$!%S3CR3T"; // Ganti dengan secret key Anda
 let qrCodeData = null;
 let whatsappConnected = false;
-let qrCodeSent = false;
 
 const PORT = 3000;
-// const IP_ADDRESS = "103.67.186.41";
+
+// Konfigurasi Pusher
+const pusher = new Pusher({
+  appId: "1823570",
+  key: "fd5523b0b2af4d2df994",
+  secret: "27e7998e3d3fd195bea6",
+  cluster: "ap1",
+  useTLS: true,
+});
 
 app.use(cors());
 app.use(bodyParser.json());
 
-const WebSocket = require("ws");
-
-// Ganti URL dengan URL WebSocket server Anda di CodeIgniter
-const ws = new WebSocket("ws://localhost:8081");
-
-ws.on("open", function open() {
-  console.log("Connected to WebSocket server");
-  ws.send("Hello from Node.js!-test");
-});
 client.on("ready", () => {
   console.log("Client is ready!");
-  ws.send("Connected-status");
+  whatsappConnected = true;
+  pusher.trigger("my-channel", "my-event", {
+    code: "status",
+    message: "Connected",
+  });
 });
+
 client.on("message", async (message) => {
   if (message.body === "!ping") {
     await client.sendMessage(message.from, "pong");
@@ -69,15 +73,21 @@ app.get("/api/qr-code", verifyToken, async (req, res) => {
   }
 });
 
-app.get("/api/ready", verifyToken, (req, res) => {
+app.get("/api/ready", (req, res) => {
   console.log("Get Status!");
   if (whatsappConnected) {
     res.status(200).json({ status: true });
-    ws.send("Connected-status");
+    pusher.trigger("my-channel", "my-event", {
+      code: "status",
+      message: "Connected",
+    });
   } else {
     whatsappConnected = false;
     res.status(200).json({ status: false, qrData: qrCodeData ?? null });
-    ws.send("Not Connected-status");
+    pusher.trigger("my-channel", "my-event", {
+      code: "status",
+      message: "Not Connected",
+    });
   }
 });
 
@@ -112,6 +122,7 @@ function verifyToken(req, res, next) {
     next();
   });
 }
+
 async function sendMessageToDestination(number, message) {
   try {
     await client.sendMessage(number + "@c.us", message);
@@ -120,22 +131,27 @@ async function sendMessageToDestination(number, message) {
     console.error("Gagal mengirim pesan:", error);
   }
 }
+
 client.on("qr", (qr) => {
-  // Kirim QR code hanya jika belum dikirim sebelumnya
-  if (whatsappConnected) {
-    ws.send("Connected-status");
-  } else {
-    qrCodeData = qr;
-    ws.send(qrCodeData + "-qr");
-    console.log("Qr Sudah tersedia");
-    whatsappConnected = false;
-    ws.send("Not Connected-status");
-  }
+  qrCodeData = qr;
+  pusher.trigger("my-channel", "my-event", { qr: qrCodeData });
+  console.log("Qr Sudah tersedia");
+  whatsappConnected = false;
+  // pusher.trigger('my-channel', 'my-event', { status: "status", message: "Not Connected" });
 });
-app.listen(
-  PORT,
-  /* IP_ADDRESS,*/ () => {
-    console.log(`API server berjalan di PORT : ${PORT}.`);
-    client.initialize();
-  }
-);
+client.on("disconnected", async (reason)  => {
+  console.log("Client was logged out", reason);
+  whatsappConnected = false;
+  pusher.trigger("my-channel", "my-event", {
+    code: "status",
+    message: "Disconnected",
+  });
+  // Tambahkan kode ini untuk restart Node.js
+  console.log("Restarting application...");
+  await process.exit(0);
+});
+
+app.listen(PORT, () => {
+  console.log(`API server berjalan di PORT : ${PORT}.`);
+  client.initialize();
+});
