@@ -1,0 +1,17 @@
+[0623/104546.021:INFO:CONSOLE(132)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/y1/r/HfoRcbeJkqv.js?_nc_x=Ij3Wp8lg5Kz (132)
+[0623/104546.268:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'battery'.", source:  (0)
+[0623/104546.268:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'usb-unrestricted'.", source:  (0)
+[0623/104548.081:INFO:CONSOLE(132)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/y1/r/HfoRcbeJkqv.js?_nc_x=Ij3Wp8lg5Kz (132)
+[0623/105915.548:WARNING:quota_database.cc(1015)] Quota database is too new.
+[0623/105915.548:ERROR:quota_database.cc(929)] Could not open the quota database, resetting.
+[0623/105916.028:WARNING:sqlite_persistent_store_backend_base.cc(176)] Cookie database is too new.
+[0623/105916.159:INFO:CONSOLE(132)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/y1/r/HfoRcbeJkqv.js?_nc_x=Ij3Wp8lg5Kz (132)
+[0623/105916.432:ERROR:indexed_db_factory_impl.cc(708)] Got corruption for { origin: https://web.whatsapp.com, top-level site: https://whatsapp.com, nonce: <null>, ancestor chain bit: Same-Site }, Unknown corruption
+[0623/105916.446:ERROR:indexed_db_factory_impl.cc(844)] IndexedDB recovering from a corrupted (and deleted) database.
+[0623/105919.568:INFO:CONSOLE(132)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/y1/r/HfoRcbeJkqv.js?_nc_x=Ij3Wp8lg5Kz (132)
+[0623/110549.555:INFO:CONSOLE(132)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/y1/r/HfoRcbeJkqv.js?_nc_x=Ij3Wp8lg5Kz (132)
+[0623/110703.738:INFO:CONSOLE(132)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/y1/r/HfoRcbeJkqv.js?_nc_x=Ij3Wp8lg5Kz (132)
+[0623/110816.080:INFO:CONSOLE(132)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/y1/r/HfoRcbeJkqv.js?_nc_x=Ij3Wp8lg5Kz (132)
+[0623/111229.104:INFO:CONSOLE(265)] "Failed to parse video contentType: video/mp4; codecs=avc1.42000a", source: https://web.whatsapp.com/app.2c7f8dd150ae88037cde.js (265)
+[0623/111229.105:INFO:CONSOLE(265)] "Failed to parse video contentType: video/mp4; codecs=hev1.1.6.L93.B0", source: https://web.whatsapp.com/app.2c7f8dd150ae88037cde.js (265)
+[0623/111230.077:INFO:CONSOLE(132)] "Event handler of 'x-storagemutated-1' event must be added on the initial evaluation of worker script.", source: https://static.whatsapp.net/rsrc.php/v3/y1/r/HfoRcbeJkqv.js?_nc_x=Ij3Wp8lg5Kz (132)

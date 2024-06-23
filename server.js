@@ -1,14 +1,20 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
-const { Client } = require("whatsapp-web.js");
+const { Client, LocalAuth } = require("whatsapp-web.js");
 const cors = require("cors");
 
 const app = express();
+const wwebVersion = "2.2412.54";
 const client = new Client({
+  authStrategy: new LocalAuth(), // your authstrategy here
   puppeteer: {
     headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-extensions"],
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  },
+  webVersionCache: {
+    type: "remote",
+    remotePath: `https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/${wwebVersion}.html`,
   },
 });
 let secretKey = "!@#$!%S3CR3T"; // Ganti dengan secret key Anda
@@ -25,7 +31,7 @@ app.use(bodyParser.json());
 const WebSocket = require("ws");
 
 // Ganti URL dengan URL WebSocket server Anda di CodeIgniter
-const ws = new WebSocket("ws://103.67.186.157:8081");
+const ws = new WebSocket("ws://localhost:8081");
 
 ws.on("open", function open() {
   console.log("Connected to WebSocket server");
@@ -63,14 +69,14 @@ app.get("/api/qr-code", verifyToken, async (req, res) => {
   }
 });
 
-app.get("/api/ready", (req, res) => {
+app.get("/api/ready", verifyToken, (req, res) => {
   console.log("Get Status!");
   if (whatsappConnected) {
     res.status(200).json({ status: true });
     ws.send("Connected-status");
   } else {
     whatsappConnected = false;
-    res.status(200).json({ status: false });
+    res.status(200).json({ status: false, qrData: qrCodeData ?? null });
     ws.send("Not Connected-status");
   }
 });
@@ -93,11 +99,9 @@ app.post("/api/login", (req, res) => {
 function verifyToken(req, res, next) {
   const token = req.headers["authorization"];
   if (!token) {
-    return res
-      .status(403)
-      .json({
-        error: "Token tidak tersedia. Silakan login terlebih dahulu.",
-      });
+    return res.status(403).json({
+      error: "Token tidak tersedia. Silakan login terlebih dahulu.",
+    });
   }
   if (req.path === "/api/ready") {
     return next();
@@ -128,7 +132,10 @@ client.on("qr", (qr) => {
     ws.send("Not Connected-status");
   }
 });
-app.listen(PORT,/* IP_ADDRESS,*/ () => {
-  console.log(`API server berjalan di PORT : ${PORT}.`);
-  client.initialize();
-});
+app.listen(
+  PORT,
+  /* IP_ADDRESS,*/ () => {
+    console.log(`API server berjalan di PORT : ${PORT}.`);
+    client.initialize();
+  }
+);
