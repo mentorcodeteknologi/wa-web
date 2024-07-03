@@ -1,12 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
-const { Client, LocalAuth } = require("whatsapp-web.js");
+const { Client, NoAuth } = require("whatsapp-web.js");
 const cors = require("cors");
 const Pusher = require("pusher");
 
 const app = express();
-const wwebVersion = '2.2403.2';
+const wwebVersion = '2.2412.54';
 const fs = require('fs');
 
 const SESSION_FILE_PATH = './session.json';
@@ -17,9 +17,7 @@ if (fs.existsSync(SESSION_FILE_PATH))
 }
 
 const client = new Client({
-  authStrategy: new LocalAuth({
-    dataPath: sessionCfg,
-  }), // your authstrategy here
+  authStrategy: new NoAuth(), // your authstrategy here
   puppeteer: {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
