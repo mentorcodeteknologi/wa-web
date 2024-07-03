@@ -6,9 +6,20 @@ const cors = require("cors");
 const Pusher = require("pusher");
 
 const app = express();
-const wwebVersion = "2.2412.54";
+const wwebVersion = '2.2403.2';
+const fs = require('fs');
+
+const SESSION_FILE_PATH = './session.json';
+let sessionCfg;
+if (fs.existsSync(SESSION_FILE_PATH)) 
+{
+    sessionCfg = require(SESSION_FILE_PATH);
+}
+
 const client = new Client({
-  authStrategy: new LocalAuth(), // your authstrategy here
+  authStrategy: new LocalAuth({
+    dataPath: sessionCfg,
+  }), // your authstrategy here
   puppeteer: {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -139,7 +150,7 @@ client.on("qr", (qr) => {
   whatsappConnected = false;
   // pusher.trigger('my-channel', 'my-event', { status: "status", message: "Not Connected" });
 });
-client.on("disconnected", async (reason)  => {
+client.on("disconnected", async (reason) => {
   console.log("Client was logged out", reason);
   whatsappConnected = false;
   pusher.trigger("my-channel", "my-event", {
