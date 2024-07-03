@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
-const { Client, NoAuth } = require("whatsapp-web.js");
+const { Client, LocalAuth } = require("whatsapp-web.js");
 const cors = require("cors");
 const Pusher = require("pusher");
 
@@ -17,15 +17,16 @@ if (fs.existsSync(SESSION_FILE_PATH))
 }
 
 const client = new Client({
-  authStrategy: new NoAuth(), // your authstrategy here
+  authStrategy: new LocalAuth(),
+  restartOnAuthFail: true,
   puppeteer: {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   },
-  webVersionCache: {
-    type: "remote",
-    remotePath: `https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/${wwebVersion}.html`,
-  },
+  // webVersionCache: {
+  //   type: "remote",
+  //   remotePath: `https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/${wwebVersion}.html`,
+  // },
 });
 let secretKey = "!@#$!%S3CR3T"; // Ganti dengan secret key Anda
 let qrCodeData = null;
